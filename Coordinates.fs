@@ -57,4 +57,13 @@ module Coordinates =
     /// Get 8 coordinates up, down, left, right and at diaganols to some given coordinates
     let getAdjacentCoordinates (start: coordinates) : coordinates seq =
         getDiagonallyAdjacentCoordinates start 
-        |> Seq.append (getOrthogonalAdjacentCoordinates start)        
+        |> Seq.append (getOrthogonalAdjacentCoordinates start)
+        
+    /// Get all coordinates after repeating a shift, until a stopping function criteria is met.
+    let rec afterRepeatedShift (stopAt: coordinates -> bool) (shift: int * int) (start: coordinates) : coordinates list =
+        let newCoordinates = getAfterShift shift start
+        if stopAt newCoordinates then
+            []
+        else
+            newCoordinates :: afterRepeatedShift stopAt shift newCoordinates
+            
