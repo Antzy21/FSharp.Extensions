@@ -21,7 +21,7 @@ let filterSome (source: 'T option seq) : 'T seq =
     |> Seq.filter Option.isSome
     |> Seq.map Option.get
 
-let filterResult (source: 'T result seq) : 'T seq = 
+let filterResults (source: 'T result seq) : 'T seq = 
     source
     |> Seq.map Result.toOption
     |> filterSome
