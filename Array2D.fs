@@ -130,7 +130,19 @@ let tryFind (predicate: 'T -> bool) (array: 'T[,]) =
         elif predicate t then
             Some t
         else
-            None    
+            None
+    ) None
+
+/// Try to find the coordinates of a value that fits a given predicate in an arry
+let tryFindIndex (predicate: 'T -> bool) (array: 'T[,]) : coordinates option =
+    array
+    |> foldij (fun i j oCoords t ->
+        if Option.isSome oCoords then
+            oCoords
+        elif predicate t then
+            Some (i,j)
+        else
+            None
     ) None
   
 /// Try to find a value in an array using a filtering function involving coordinates.
