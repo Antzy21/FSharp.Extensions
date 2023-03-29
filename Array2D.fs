@@ -1,13 +1,41 @@
 ﻿module FSharp.Extensions.Array2D
 
-let flaten (array: 'T[,]) : seq<'T> = 
-    seq { for x in [0..(Array2D.length1 array) - 1] do 
-                for y in [0..(Array2D.length2 array) - 1] do 
-                    yield array.[x, y] }
+/// Are some given coordinates are inside a given array
+let containsCoordinates ((i,j): coordinates) (array: 'T[,]) : bool =
+    i >= 0 && i <= Array2D.length1 array && j >= 0 && j <= Array2D.length2 array
 
-let combineHorizontally (array1: 'T[,]) (array2: 'T[,]) : 'T[,] =
+/// Checks if coordinates are in array, then apply given modifier to array at coordinatess if they are.
+let modifyArrayAtCoordinates (modifier: 'T -> 'T) ((i,j): coordinates) (array: 'T[,]) =
+    if containsCoordinates (i, j) array then
+        array.[i,j] <- (modifier array.[i,j])
+
+/// For a list of coordinates, check if they are in array, then apply given modifier to array at coordinatess if they are.
+let modifyArrayAtListOfCoords (modifier: 'T -> 'T)  (array: 'T[,]) (coordsList: coordinates seq) =
+    coordsList
+    |> Seq.iter (fun coords ->
+        modifyArrayAtCoordinates modifier coords array
+    )
+
+/// Convert a array into a sequence
+let flaten (array: 'T[,]) : 'T seq = 
+    seq {
+        for i in [0..(Array2D.length1 array) - 1] do 
+            for j in [0..(Array2D.length2 array) - 1] do 
+                yield array.[i, j]
+    }
+    
+/// Convert a array into a sequence of tuples containging the values and their i, j coordinates.
+let flateni (array: 'T[,]) : ('T * (int*int)) seq = 
+    seq {
+        for i in [0..(Array2D.length1 array) - 1] do 
+            for j in [0..(Array2D.length2 array) - 1] do 
+                yield (array.[i, j], (i,j))
+    }
+
+/// For two given arrays which must have the same height, combine them next to eachother with A2 to the right of A1.
+let combineHorizontallyResult (array1: 'T[,]) (array2: 'T[,]) : 'T[,] result =
     if Array2D.length1 array1 <> Array2D.length1 array2 then
-        failwith "Arrays must have the same height"
+        Error "Arrays must have the same height"
     else
         Array2D.init (Array2D.length1 array1) (Array2D.length2 array1 + Array2D.length2 array2) (fun i j ->
             if j < Array2D.length2 array1 then
@@ -15,10 +43,18 @@ let combineHorizontally (array1: 'T[,]) (array2: 'T[,]) : 'T[,] =
             else
                 array2.[i, j - Array2D.length2 array1]
         )
+        |> Ok
+
+/// For two given arrays which must have the same height, combine them next to eachother with A2 to the right of A1.
+let combineHorizontallyOption (array1: 'T[,]) (array2: 'T[,]) = combineHorizontallyResult array1 array2 |> Result.toOption
+
+/// For two given arrays which must have the same height, combine them next to eachother with A2 to the right of A1.
+let combineHorizontally (array1: 'T[,]) (array2: 'T[,]) = combineHorizontallyResult array1 array2 |> Result.failOnError
             
-let combineVertically (array1: 'T[,]) (array2: 'T[,]) : 'T[,] =
+/// For two given arrays which must have the same width, combine them next to eachother with A2 below A1.
+let combineVerticallyResult (array1: 'T[,]) (array2: 'T[,]) : 'T[,] result =
     if Array2D.length2 array1 <> Array2D.length2 array2 then
-        failwith "Arrays must have the same width"
+        Error "Arrays must have the same width"
     else
         Array2D.init (Array2D.length1 array1 + Array2D.length1 array2) (Array2D.length2 array1) (fun i j ->
             if i < Array2D.length1 array1 then
@@ -26,28 +62,25 @@ let combineVertically (array1: 'T[,]) (array2: 'T[,]) : 'T[,] =
             else
                 array2.[i - Array2D.length1 array1, j]
         )
+        |> Ok
 
-let flateni (array: 'T[,]) : seq<('T * (int*int))> = 
-    seq { for x in [0..(Array2D.length1 array) - 1] do 
-                for y in [0..(Array2D.length2 array) - 1] do 
-                    yield (array.[x, y], (x,y)) }
+/// For two given arrays which must have the same width, combine them next to eachother with A2 below A1.
+let combineVerticallyOption (array1: 'T[,]) (array2: 'T[,]) = combineVerticallyResult array1 array2 |> Result.toOption
 
-let fold (folder: 'S -> 'T -> 'S) (state: 'S) (array: 'T[,]) =
-    let mutable state = state
-    for x in 0 .. Array2D.length1 array - 1 do
-        for y in 0 .. Array2D.length2 array - 1 do
-            state <- folder state (array.[x, y])
-    state
+/// For two given arrays which must have the same width, combine them next to eachother with A2 below A1.
+let combineVertically (array1: 'T[,]) (array2: 'T[,]) = combineVerticallyResult array1 array2 |> Result.failOnError
 
-let filter (filterer: 'T -> bool) (array: 'T[,]) : 'T array =
-    array
-    |> fold (fun s item ->
-        if filterer item then
-            List.append s [item]
-        else 
-            s
-    ) List.Empty
-    |> Array.ofList
+/// Flattens the array and then folds it.
+let fold (folder: 'State -> 'T -> 'State) (state: 'State) (array: 'T[,]) : 'State =
+    flaten array |> Seq.fold folder state
+
+/// Flattens the array and then reduces it
+let reduce (reduction: 'T -> 'T -> 'T) (array: 'T[,]) : 'T =
+    flaten array |> Seq.reduce reduction
+
+/// Returns a list of all elements in a given array that meet the criteria of a filtering function.
+let filter (filterer: 'T -> bool) (array: 'T[,]) : 'T seq =
+    flaten array |> Seq.filter filterer
 
 let foldij (folder: int -> int -> 'S -> 'T -> 'S) (state: 'S) (array: 'T[,]) =
     let mutable state = state
@@ -77,16 +110,18 @@ let foldibackj (folder: int -> int -> 'S -> 'T -> 'S) (state: 'S) (array: 'T[,])
             state <- folder y x state (array.[x, y])
     state
 
-let filterForPositions (filterer: 'T -> bool) (array: 'T[,]) : (int * int) array =
+/// Get a list of coordinates from an array that satisfy a function on the values in the array.
+let filterForCoordinates (filterer: 'T -> bool) (array: 'T[,]) : coordinates array =
     array
     |> foldij (fun i j s item ->
         if filterer item then
             List.append s [(i, j)]
         else 
             s
-    ) List.Empty
+    ) []
     |> Array.ofList
-
+    
+/// Try to find a value in an array using a filtering function.
 let tryFind (predicate: 'T -> bool) (array: 'T[,]) =
     array
     |> fold (fun oValue t ->
@@ -97,9 +132,11 @@ let tryFind (predicate: 'T -> bool) (array: 'T[,]) =
         else
             None    
     ) None
-        
-let tryFindi (predicate: int -> int -> 'T -> bool) (array: 'T[,]) =
-    foldij (fun i j oValue t ->
+  
+/// Try to find a value in an array using a filtering function involving coordinates.
+let tryFindi (predicate: int -> int -> 'T -> bool) (array: 'T[,]) : 'T option =
+    array
+    |> foldij (fun i j oValue t ->
         if Option.isSome oValue then
             oValue
         elif predicate i j t then
@@ -108,110 +145,70 @@ let tryFindi (predicate: int -> int -> 'T -> bool) (array: 'T[,]) =
             None    
     ) None
 
-let tryItem (i: int) (j: int) (array: 'T[,]) : 'T option =
-    try 
+/// Try to get the value in an array at given coordinates.
+let tryGet ((i,j): coordinates) (array: 'T[,]) : 'T option =
+    if containsCoordinates (i,j) array then
         Some array.[i,j]
-    with
-    | _ -> None
-    
-let count (comparer: 'T -> bool) (array: 'T[,]) : int =
-    array
-    |> fold (fun s (t: 'T) ->
-        if comparer t then
-            s+1
-        else
-            s
-    ) 0
-
-let exists (comparer: 'T -> bool) (array: 'T[,]) : bool = count comparer array > 0
-
-let last (array: 'T[,]) = array.[(Array2D.length1 array)-1, (Array2D.length2 array)-1]
-
-/// Compares the value to the one left to it in the array using the comparison function. If there is no value to the left, take the default.
-let leftComparison (defaultBool: bool) (comparison: 'T -> 'T -> bool) (i: int) (j: int) (array: 'T[,]) =
-    if i = 0 then
-        defaultBool
     else
-        comparison array.[i-1,j] array.[i,j]
-    
-/// Compares the value to the one right to it in the array using the comparison function. If there is no value to the right, take the default.
-let rightComparison (defaultBool: bool) (comparison: 'T -> 'T -> bool) (i: int) (j: int) (array: 'T[,]) =
-    if i = Array2D.length1 array - 1 then
-        defaultBool
-    else
-        comparison array.[i+1,j] array.[i,j]
+        None
 
-/// Compares the value to the one above it in the array using the comparison function. If there is no value above, take the default.
-let aboveComparison (defaultBool: bool) (comparison: 'T -> 'T -> bool) (i: int) (j: int) (array: 'T[,]) =
-    if j = 0 then
-        defaultBool
-    else
-        comparison array.[i,j-1] array.[i,j]
+/// Get the last element in the bottom right of the array
+let last (array: 'T[,]) =
+    array.[(Array2D.length1 array)-1, (Array2D.length2 array)-1]
 
-/// Compares the value to the one below it in the array using the comparison function. If there is no value below, take the default.
-let belowComparison (defaultBool: bool) (comparison: 'T -> 'T -> bool) (i: int) (j: int) (array: 'T[,]) =
-    if j = Array2D.length2 array - 1 then
-        defaultBool
+/// For two given coordinates, check if they are in a given array, and then compare the two with a given comparison function.
+let compareAtCoordinatesResult (comparison: 'T -> 'T -> bool) ((i1, j1): coordinates) ((i2, j2): coordinates) (array: 'T[,]) =
+    if not <| containsCoordinates (i1, j1) array then
+        Error $"Coordinates ({i1}, {j1}) are not in the array"
+    else if not <| containsCoordinates (i2, j2) array then
+        Error $"Coordinates ({i2}, {j2}) are not in the array"
     else
-        comparison array.[i,j+1] array.[i,j]
+        comparison array.[i1,j1] array.[i2,j2]
+        |> Ok
 
-let adjacentComparisonCheck (array: 'T[,]) (comparison: 'T -> 'T -> bool) (i: int) (j: int) : bool=
-    leftComparison true comparison i j array &&
-    rightComparison true comparison i j array &&
-    aboveComparison true comparison i j array &&
-    belowComparison true comparison i j array
+/// For two given coordinates, check if they are in a given array, and then compare the two with a given comparison function.
+let compareAtCoordinatesOption (comparison: 'T -> 'T -> bool) (coords1: coordinates) (coords2: coordinates) (array: 'T[,]) =
+    compareAtCoordinatesResult comparison coords1 coords2 array |> Result.toOption
+
+/// For two given coordinates, check if they are in a given array, and then compare the two with a given comparison function.
+let compareAtCoordinates (comparison: 'T -> 'T -> bool) (coords1: coordinates) (coords2: coordinates) (array: 'T[,]) =
+    compareAtCoordinatesResult comparison coords1 coords2 array |> Result.failOnError
+
+/// Compare a value in an array at given coordinates with orthogonal adjacent values, using a comparison function.
+let orthogonallyAdjacentComparisonCheckResult (array: 'T[,]) (comparison: 'T -> 'T -> bool) (coords: coordinates) : bool =
+    Coordinates.getOrthogonalAdjacentCoordinates coords
+    |> Seq.fold (fun accumulatedCheck adjCoords ->
+        compareAtCoordinatesOption comparison coords adjCoords array
+        |> Option.defaultValue true
+        |> ((&&) accumulatedCheck)
+    ) true
        
-let adjacentFindi (array: 'T[,]) (predicate: 'T -> bool) (i: int) (j: int) =
-    [|
-        (tryItem (i-1) j array, ((i-1), j));
-        (tryItem (i+1) j array, ((i+1), j));
-        (tryItem i (j-1) array, (i, (j-1)));
-        (tryItem i (j+1) array, (i, (j+1)));
-    |]
-    |> Array.filter (fst >> Option.isSome)
-    |> Array.map (fun (o,ij) -> (Option.get o,ij))
-    |> Array.find (fst >> predicate)
-
 /// Compares adjacent values to find the max by the comparer
-let adjacentComparer (array: 'T[,]) (i: int) (j: int) (comparer: 'T[] -> 'T) : 'T =
-    [|
-        tryItem (i-1) j array;
-        tryItem (i+1) j array;
-        tryItem i (j-1) array;
-        tryItem i (j+1) array;
-    |]
-    |> Array.filter Option.isSome
-    |> Array.map Option.get
+let adjacentComparer (array: 'T[,]) (coords: coordinates) (comparer: 'T seq -> 'T) : 'T =
+    Coordinates.getAdjacentCoordinates coords
+    |> Seq.map (fun adjCoords -> tryGet adjCoords array)
+    |> Seq.filterSome
     |> comparer
 
-let modifyAdjacent
-    (includeDiaganals: bool)
-    (modifier: 'T -> 'T) 
-    (i: int) (j: int) 
-    (array: 'T[,])
-    : 'T [,] =
-    let X = Array2D.length1 array - 1
-    let Y = Array2D.length2 array - 1
-    if i <> 0 then
-        if includeDiaganals then
-            if j <> 0 then
-                array.[i-1,j-1] <- (modifier array.[i-1,j-1])
-            if j <> Y then
-                array.[i-1,j+1] <- (modifier array.[i-1,j+1])
-        array.[i-1,j] <- (modifier array.[i-1,j])
-    if i <> X then
-        if includeDiaganals then
-            if j <> 0 then
-                array.[i+1,j-1] <- (modifier array.[i+1,j-1])
-            if j <> Y then
-                array.[i+1,j+1] <- (modifier array.[i+1,j+1])
-        array.[i+1,j] <- (modifier array.[i+1,j])
-    if j <> 0 then
-        array.[i,j-1] <- (modifier array.[i,j-1])
-    if j <> Y then
-        array.[i,j+1] <- (modifier array.[i,j+1])
+/// Modify the values of orthoganaly adjacent values in an array
+let modifyOrthognallyAdjacent (modifier: 'T -> 'T) (coords: coordinates) (array: 'T[,]) : 'T [,] =
+    Coordinates.getOrthogonalAdjacentCoordinates coords
+    |> modifyArrayAtListOfCoords modifier array
+    array
+    
+/// Modify the values of diagonally adjacent values in an array
+let modifyDiagonallyAdjacent (modifier: 'T -> 'T) (coords: coordinates) (array: 'T[,]) : 'T [,] =
+    Coordinates.getDiagonallyAdjacentCoordinates coords
+    |> modifyArrayAtListOfCoords modifier array
     array
 
+/// Modify the values of adjacent values in an array
+let modifyAdjacent (modifier: 'T -> 'T) (coords: coordinates) (array: 'T[,]) : 'T [,] =
+    Coordinates.getAdjacentCoordinates coords
+    |> modifyArrayAtListOfCoords modifier array
+    array
+
+/// Prints out each element of the cell in an uneven matrix, but preserving vertical lines.
 let print (array: 'a [,]) =
     printfn ""
     array
@@ -221,6 +218,7 @@ let print (array: 'a [,]) =
         | false -> printf $"{cell}"
     )
 
+/// Prints out an integer array after values have been "moduloed" by 10.
 let printMod10 (array: int [,]) =
     printfn ""
     array
@@ -233,6 +231,7 @@ let printMod10 (array: int [,]) =
         | false -> printf $"{cell}"
     )
 
+/// Prints out an array of bools, with true represented with "X" and false ".".
 let printBool (array: bool [,]) =
     printfn ""
     array
@@ -247,4 +246,5 @@ let printBool (array: bool [,]) =
         | false -> printf $"{cell}"
     )
 
+/// Prints out the array to the console, and returns it to continue operations.
 let printPass (array: 'a [,]) : 'a [,] = print array; array
