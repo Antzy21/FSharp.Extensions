@@ -12,4 +12,5 @@ module Result =
         | None -> Error errorMessage
 
     /// If an Error, throws an exception with the error message
-    let failOnError (result: 'T result) = Result.defaultWith failwith
+    let failOnError (result: 'T result) : 'T =
+        result |> Result.defaultWith failwith
