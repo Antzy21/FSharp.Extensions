@@ -84,40 +84,40 @@ let reduce (reduction: 'T -> 'T -> 'T) (array: 'T[,]) : 'T =
 let filter (filterer: 'T -> bool) (array: 'T[,]) : 'T seq =
     flaten array |> Seq.filter filterer
 
-let foldij (folder: int -> int -> 'S -> 'T -> 'S) (state: 'S) (array: 'T[,]) =
+let foldij (folder: coordinates -> 'S -> 'T -> 'S) (state: 'S) (array: 'T[,]) =
     let mutable state = state
     for x in 0 .. Array2D.length1 array - 1 do
         for y in 0 .. Array2D.length2 array - 1 do
-            state <- folder y x state (array.[x, y])
+            state <- folder (x, y) state (array.[x, y])
     state
 
-let foldji (folder: int -> int -> 'S -> 'T -> 'S) (state: 'S) (array: 'T[,]) =
+let foldji (folder: coordinates -> 'S -> 'T -> 'S) (state: 'S) (array: 'T[,]) =
     let mutable state = state
     for y in 0 .. Array2D.length2 array - 1 do
         for x in 0 .. Array2D.length1 array - 1 do
-            state <- folder x y state (array.[x, y])
+            state <- folder (x, y) state (array.[x, y])
     state
 
-let foldjbacki (folder: int -> int -> 'S -> 'T -> 'S) (state: 'S) (array: 'T[,]) =
+let foldjbacki (folder: coordinates -> 'S -> 'T -> 'S) (state: 'S) (array: 'T[,]) =
     let mutable state = state
     for y in ([0 .. Array2D.length2 array - 1] |> List.rev) do
         for x in 0 .. Array2D.length1 array - 1 do
-            state <- folder x y state (array.[x, y])
+            state <- folder (x, y) state (array.[x, y])
     state
 
-let foldibackj (folder: int -> int -> 'S -> 'T -> 'S) (state: 'S) (array: 'T[,]) =
+let foldibackj (folder: coordinates -> 'S -> 'T -> 'S) (state: 'S) (array: 'T[,]) =
     let mutable state = state
-    for x in ([0 .. Array2D.length2 array - 1] |> List.rev) do
+    for x in ([0 .. Array2D.length1 array - 1] |> List.rev) do
         for y in 0 .. Array2D.length2 array - 1 do
-            state <- folder y x state (array.[x, y])
+            state <- folder (x, y) state (array.[x, y])
     state
 
 /// Get a list of coordinates from an array that satisfy a function on the values in the array.
 let filterForCoordinates (filterer: 'T -> bool) (array: 'T[,]) : coordinates array =
     array
-    |> foldij (fun i j s item ->
+    |> foldij (fun coords s item ->
         if filterer item then
-            List.append s [(i, j)]
+            coords :: s
         else 
             s
     ) []
@@ -138,22 +138,22 @@ let tryFind (predicate: 'T -> bool) (array: 'T[,]) =
 /// Try to find the coordinates of a value that fits a given predicate in an arry
 let tryFindIndex (predicate: 'T -> bool) (array: 'T[,]) : coordinates option =
     array
-    |> foldij (fun i j oCoords t ->
+    |> foldij (fun coords oCoords t ->
         if Option.isSome oCoords then
             oCoords
         elif predicate t then
-            Some (i,j)
+            Some coords
         else
             None
     ) None
   
 /// Try to find a value in an array using a filtering function involving coordinates.
-let tryFindi (predicate: int -> int -> 'T -> bool) (array: 'T[,]) : 'T option =
+let tryFindi (predicate: coordinates -> 'T -> bool) (array: 'T[,]) : 'T option =
     array
-    |> foldij (fun i j oValue t ->
+    |> foldij (fun coords oValue t ->
         if Option.isSome oValue then
             oValue
-        elif predicate i j t then
+        elif predicate coords t then
             Some t
         else
             None    
