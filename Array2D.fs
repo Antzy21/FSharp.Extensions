@@ -1,5 +1,7 @@
 ﻿module FSharp.Extensions.Array2D
 
+type coordinates = coordinates<int>
+
 /// Are some given coordinates are inside a given array
 let containsCoordinates ((i,j): coordinates) (array: 'T[,]) : bool =
     i >= 0 && i <= Array2D.length1 array && j >= 0 && j <= Array2D.length2 array
