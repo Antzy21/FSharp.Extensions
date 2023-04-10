@@ -15,7 +15,7 @@ module Coordinates =
     /// Get the metropolitan distance between two given coordinates
     let getDistanceBetweenCoordinates ((x1,y1): coordinates<'Size>) ((x2,y2): coordinates<'Size>) : 'Size =
         getShiftBetweenCoordinates (x1,y1) (x2, y2)
-        |> (fun (x,y) -> x+y)
+        |> (fun (x,y) -> 'Size.Abs(x) + 'Size.Abs(y))
 
     /// Get new coordinates after shifting given coordinates by a given shift.
     /// Starting coordinates and shift parameters are interchangable thanks to the communitivity property of addition!
