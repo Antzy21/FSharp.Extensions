@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Coordinates.fs" />
     <Compile Include="Array2D.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
