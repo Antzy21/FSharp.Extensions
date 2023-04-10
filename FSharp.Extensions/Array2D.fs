@@ -94,10 +94,32 @@ let foldij (folder: coordinates -> 'S -> 'T -> 'S) (state: 'S) (array: 'T[,]) =
             |> folder (i, j) acc
         ) accRow
     ) state
+    
+/// Folds the array, starting in the bottom left and moving right.
+let foldijback (folder: coordinates -> 'S -> 'T -> 'S) (state: 'S) (array: 'T[,]) =
+    [0..Array2D.length1 array-1] |> List.rev
+    |> List.fold (fun accRow i ->
+        [0..Array2D.length2 array-1]
+        |> List.fold (fun acc j ->
+            array.[i, j]
+            |> folder (i, j) acc
+        ) accRow
+    ) state
 
 /// Folds the array, starting in the top right and moving left.
 let foldibackj (folder: coordinates -> 'S -> 'T -> 'S) (state: 'S) (array: 'T[,]) =
     [0..Array2D.length1 array-1]
+    |> List.fold (fun accRow i ->
+        [0..Array2D.length2 array-1] |> List.rev
+        |> List.fold (fun acc j ->
+            array.[i, j]
+            |> folder (i, j) acc
+        ) accRow
+    ) state
+
+/// Folds the array, starting in the bottom right and moving left.
+let foldibackjback (folder: coordinates -> 'S -> 'T -> 'S) (state: 'S) (array: 'T[,]) =
+    [0..Array2D.length1 array-1] |> List.rev
     |> List.fold (fun accRow i ->
         [0..Array2D.length2 array-1] |> List.rev
         |> List.fold (fun acc j ->
@@ -116,10 +138,32 @@ let foldji (folder: coordinates -> 'S -> 'T -> 'S) (state: 'S) (array: 'T[,]) =
             |> folder (i, j) acc
         ) accRow
     ) state
-
+    
+/// Folds the array, starting in the top right and moving down.
+let foldjiback (folder: coordinates -> 'S -> 'T -> 'S) (state: 'S) (array: 'T[,]) =
+    [0..Array2D.length1 array-1] |> List.rev
+    |> List.fold (fun accRow j ->
+        [0..Array2D.length2 array-1]
+        |> List.fold (fun acc i ->
+            array.[i, j]
+            |> folder (i, j) acc
+        ) accRow
+    ) state
+    
 /// Folds the array, starting in the bottom left and moving up.
 let foldjbacki (folder: coordinates -> 'S -> 'T -> 'S) (state: 'S) (array: 'T[,]) =
     [0..Array2D.length1 array-1]
+    |> List.fold (fun accRow j ->
+        [0..Array2D.length2 array-1] |> List.rev
+        |> List.fold (fun acc i ->
+            array.[i, j]
+            |> folder (i, j) acc
+        ) accRow
+    ) state
+    
+/// Folds the array, starting in the bottom right and moving up.
+let foldjbackiback (folder: coordinates -> 'S -> 'T -> 'S) (state: 'S) (array: 'T[,]) =
+    [0..Array2D.length1 array-1] |> List.rev
     |> List.fold (fun accRow j ->
         [0..Array2D.length2 array-1] |> List.rev
         |> List.fold (fun acc i ->
