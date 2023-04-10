@@ -21,6 +21,18 @@ module Fold =
         Assert.Equal("2 1 4 3 ", result)
         
     [<Fact>]
+    let ``foldijback`` () =
+        let ary = array2D [[1;2];[3;4]]
+        let result = Array2D.foldijback folder "" ary
+        Assert.Equal("3 4 1 2 ", result)
+        
+    [<Fact>]
+    let ``foldibackjback`` () =
+        let ary = array2D [[1;2];[3;4]]
+        let result = Array2D.foldibackjback folder "" ary
+        Assert.Equal("4 3 2 1 ", result)
+        
+    [<Fact>]
     let ``foldji`` () =
         let ary = array2D [[1;2];[3;4]]
         let result = Array2D.foldji folder "" ary
@@ -31,6 +43,18 @@ module Fold =
         let ary = array2D [[1;2];[3;4]]
         let result = Array2D.foldjbacki folder "" ary
         Assert.Equal("3 1 4 2 ", result)
+    
+    [<Fact>]
+    let ``foldjiback`` () =
+        let ary = array2D [[1;2];[3;4]]
+        let result = Array2D.foldjiback folder "" ary
+        Assert.Equal("2 4 1 3 ", result)
+    
+    [<Fact>]
+    let ``foldjbackiback`` () =
+        let ary = array2D [[1;2];[3;4]]
+        let result = Array2D.foldjbackiback folder "" ary
+        Assert.Equal("4 2 3 1 ", result)
 
 module AtCoordinates =
     
