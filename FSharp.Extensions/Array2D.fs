@@ -84,33 +84,49 @@ let reduce (reduction: 'T -> 'T -> 'T) (array: 'T[,]) : 'T =
 let filter (filterer: 'T -> bool) (array: 'T[,]) : 'T seq =
     flaten array |> Seq.filter filterer
 
+/// Folds the array, starting in the top left and moving right.
 let foldij (folder: coordinates -> 'S -> 'T -> 'S) (state: 'S) (array: 'T[,]) =
-    let mutable state = state
-    for x in 0 .. Array2D.length1 array - 1 do
-        for y in 0 .. Array2D.length2 array - 1 do
-            state <- folder (x, y) state (array.[x, y])
-    state
+    [0..Array2D.length1 array-1]
+    |> List.fold (fun accRow i ->
+        [0..Array2D.length2 array-1]
+        |> List.fold (fun acc j ->
+            array.[i, j]
+            |> folder (i, j) acc
+        ) accRow
+    ) state
 
-let foldji (folder: coordinates -> 'S -> 'T -> 'S) (state: 'S) (array: 'T[,]) =
-    let mutable state = state
-    for y in 0 .. Array2D.length2 array - 1 do
-        for x in 0 .. Array2D.length1 array - 1 do
-            state <- folder (x, y) state (array.[x, y])
-    state
-
-let foldjbacki (folder: coordinates -> 'S -> 'T -> 'S) (state: 'S) (array: 'T[,]) =
-    let mutable state = state
-    for y in ([0 .. Array2D.length2 array - 1] |> List.rev) do
-        for x in 0 .. Array2D.length1 array - 1 do
-            state <- folder (x, y) state (array.[x, y])
-    state
-
+/// Folds the array, starting in the top right and moving left.
 let foldibackj (folder: coordinates -> 'S -> 'T -> 'S) (state: 'S) (array: 'T[,]) =
-    let mutable state = state
-    for x in ([0 .. Array2D.length1 array - 1] |> List.rev) do
-        for y in 0 .. Array2D.length2 array - 1 do
-            state <- folder (x, y) state (array.[x, y])
-    state
+    [0..Array2D.length1 array-1]
+    |> List.fold (fun accRow i ->
+        [0..Array2D.length2 array-1] |> List.rev
+        |> List.fold (fun acc j ->
+            array.[i, j]
+            |> folder (i, j) acc
+        ) accRow
+    ) state
+
+/// Folds the array, starting in the top left and moving down.
+let foldji (folder: coordinates -> 'S -> 'T -> 'S) (state: 'S) (array: 'T[,]) =
+    [0..Array2D.length1 array-1]
+    |> List.fold (fun accRow j ->
+        [0..Array2D.length2 array-1]
+        |> List.fold (fun acc i ->
+            array.[i, j]
+            |> folder (i, j) acc
+        ) accRow
+    ) state
+
+/// Folds the array, starting in the bottom left and moving up.
+let foldjbacki (folder: coordinates -> 'S -> 'T -> 'S) (state: 'S) (array: 'T[,]) =
+    [0..Array2D.length1 array-1]
+    |> List.fold (fun accRow j ->
+        [0..Array2D.length2 array-1] |> List.rev
+        |> List.fold (fun acc i ->
+            array.[i, j]
+            |> folder (i, j) acc
+        ) accRow
+    ) state
 
 /// Get a list of coordinates from an array that satisfy a function on the values in the array.
 let filterForCoordinates (filterer: 'T -> bool) (array: 'T[,]) : coordinates array =
