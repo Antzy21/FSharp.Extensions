@@ -14,8 +14,9 @@
     <RepositoryUrl>https://github.com/Antzy21/FSharp.Extensions</RepositoryUrl>
     <PackageTags>FSharp; Extensions; Modules; Antzy21;</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <VersionPrefix>1.0.0</VersionPrefix>
+    <VersionPrefix>1.0.1</VersionPrefix>
     <Version>$(VersionPrefix)</Version>
+    <PackageReleaseNotes>Add additional fold variations on Array2D module</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
