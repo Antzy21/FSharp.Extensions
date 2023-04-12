@@ -66,11 +66,11 @@ module Coordinates =
         getDiagonallyAdjacentCoordinates start 
         |> Seq.append (getOrthogonalAdjacentCoordinates start)
         
-    /// Get all coordinates after repeating a shift, until a stopping function criteria is met.
-    let rec afterRepeatedShift (stopAt: coordinates<'Size>-> bool) (shift: 'Size * 'Size) (start: coordinates<'Size>) : coordinates<'Size>list =
+    /// Get all coordinates after repeating a shift, up to and including when a stopping function criteria is met.
+    let rec afterRepeatedShift (stopAt: coordinates<'Size> -> bool) (shift: 'Size * 'Size) (start: coordinates<'Size>) : coordinates<'Size>list =
         let newCoordinates = getAfterShift shift start
         if stopAt newCoordinates then
-            []
+            [newCoordinates]
         else
             newCoordinates :: afterRepeatedShift stopAt shift newCoordinates
             
