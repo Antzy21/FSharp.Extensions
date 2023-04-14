@@ -10,7 +10,7 @@ module ContainsCoordinates =
         let ary = array2D [[1;2];[3;4]]
         Array2D.containsCoordinates (1,1) ary
         |> Assert.True
-        
+
     [<Fact>]
     let ``(0,0) coords are in array`` () =
         let ary = array2D [[1;2];[3;4]]
@@ -93,3 +93,29 @@ module AtCoordinates =
     let ``Value at (0,1) is 2`` () =
         let ary = array2D [[1;2];[3;4]]
         Assert.Equal(2, ary.[0,1])
+
+module TryGet =
+    
+    [<Fact>]
+    let ``(0,0) coords is Some 1`` () =
+        let ary = array2D [[1;2];[3;4]]
+        let result = Array2D.tryGet (0,0) ary
+        Assert.Equal(Some 1, result)
+
+    [<Fact>]
+    let ``(1,1) coords is Some 4`` () =
+        let ary = array2D [[1;2];[3;4]]
+        let result = Array2D.tryGet (1,1) ary
+        Assert.Equal(Some 4, result)
+        
+    [<Fact>]
+    let ``(2,1) coords are not in array`` () =
+        let ary = array2D [[1;2];[3;4]]
+        let result = Array2D.tryGet (2,1) ary
+        Assert.Equal(None, result)
+    
+    [<Fact>]
+    let ``(1,2) coords are not in array`` () =
+        let ary = array2D [[1;2];[3;4]]
+        let result = Array2D.tryGet (1,2) ary
+        Assert.Equal(None, result)
