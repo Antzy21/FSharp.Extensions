@@ -4,7 +4,7 @@ type coordinates = coordinates<int>
 
 /// Are some given coordinates are inside a given array
 let containsCoordinates ((i,j): coordinates) (array: 'T[,]) : bool =
-    i >= 0 && i <= Array2D.length1 array && j >= 0 && j <= Array2D.length2 array
+    i >= 0 && i < Array2D.length1 array && j >= 0 && j < Array2D.length2 array
 
 /// Checks if coordinates are in array, then apply given modifier to array at coordinatess if they are.
 let modifyArrayAtCoordinates (modifier: 'T -> 'T) ((i,j): coordinates) (array: 'T[,]) =
