@@ -2,6 +2,32 @@
 
 open Xunit
 open FSharp.Extensions
+    
+module ContainsCoordinates =
+    
+    [<Fact>]
+    let ``(1,1) coords are in array`` () =
+        let ary = array2D [[1;2];[3;4]]
+        Array2D.containsCoordinates (1,1) ary
+        |> Assert.True
+        
+    [<Fact>]
+    let ``(0,0) coords are in array`` () =
+        let ary = array2D [[1;2];[3;4]]
+        Array2D.containsCoordinates (0,0) ary
+        |> Assert.True
+        
+    [<Fact>]
+    let ``(2,1) coords are not in array`` () =
+        let ary = array2D [[1;2];[3;4]]
+        Array2D.containsCoordinates (2,1) ary
+        |> Assert.False
+    
+    [<Fact>]
+    let ``(1,2) coords are not in array`` () =
+        let ary = array2D [[1;2];[3;4]]
+        Array2D.containsCoordinates (1,2) ary
+        |> Assert.False
 
 module Fold =
 
