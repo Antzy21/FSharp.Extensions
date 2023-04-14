@@ -14,9 +14,9 @@
     <RepositoryUrl>https://github.com/Antzy21/FSharp.Extensions</RepositoryUrl>
     <PackageTags>FSharp; Extensions; Modules; Antzy21;</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <VersionPrefix>1.0.2</VersionPrefix>
+    <VersionPrefix>1.0.3</VersionPrefix>
     <Version>$(VersionPrefix)</Version>
-    <PackageReleaseNotes>Fix functionality of Coordinates.afterRepeatedShift</PackageReleaseNotes>
+    <PackageReleaseNotes>Fix functionality of Array2D.containsCoordinates</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
