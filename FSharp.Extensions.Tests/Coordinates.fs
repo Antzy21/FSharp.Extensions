@@ -8,7 +8,7 @@ module getShiftBetweenCoordinates =
     [<Fact>]
     let ``(2,2) & (1,3) => (-1,1)`` () =
         let result = Coordinates.getShiftBetweenCoordinates (2,2) (1,3)
-        Assert.Equal((-1,1), result)
+        Assert.Equal(struct (-1,1), result)
 
 module getDistanceBetweenCoordinates =
     
@@ -22,12 +22,12 @@ module getAfterShift =
     [<Fact>]
     let ``(2,2) + (1,3) => (3,5)`` () =
         let result = Coordinates.getAfterShift (2,2) (1,3)
-        Assert.Equal((3,5), result)
+        Assert.Equal(struct (3,5), result)
 
 module afterRepeatedShift = 
 
     [<Fact>]
     let ``Stopper is inclusive`` () =
-        let stopper coords = coords = (3,3)
+        let stopper coords = coords = struct (3,3)
         let result = Coordinates.afterRepeatedShift stopper (1,1) (0,0)
-        Assert.Equal<coordinates<int> list>([(1,1); (2,2); (3,3)], result)
+        Assert.Equal<coordinates<int> list>([struct (1,1); struct (2,2); struct (3,3)], result)
