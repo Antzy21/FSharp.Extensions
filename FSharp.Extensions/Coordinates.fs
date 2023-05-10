@@ -3,7 +3,7 @@
 open System.Numerics
 
 /// A tuple of two INumbers, used for referencing a 2D discrete grid.
-type coordinates<'Size when 'Size :> INumber<'Size>> = 'Size * 'Size
+type coordinates<'Size when 'Size :> INumber<'Size>> = (struct ('Size * 'Size))
 
 ///<summary>Contains operations for working with values of type <see cref="T:FSharp.Extensions.coordinates" />.</summary>
 module Coordinates =
