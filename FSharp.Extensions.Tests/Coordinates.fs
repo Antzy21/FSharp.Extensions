@@ -31,3 +31,13 @@ module afterRepeatedShift =
         let stopper coords = coords = struct (3,3)
         let result = Coordinates.afterRepeatedShift stopper (1,1) (0,0)
         Assert.Equal<coordinates<int> list>([struct (1,1); struct (2,2); struct (3,3)], result)
+
+module getAfterShiftInAllDirections =
+    
+    [<Fact>]
+    let ``Gets correct set of coordinates`` () =
+        let result =
+            Coordinates.getAfterShiftInAllDirections (0,0) (1,1)
+            |> Seq.toList
+        Assert.Equal<coordinates<int> list>([struct (1,1); struct (1,-1); struct (-1,1); struct (-1,-1)], result)
+
