@@ -14,9 +14,9 @@
     <RepositoryUrl>https://github.com/Antzy21/FSharp.Extensions</RepositoryUrl>
     <PackageTags>FSharp; Extensions; Modules; Antzy21;</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <VersionPrefix>1.1.1</VersionPrefix>
+    <VersionPrefix>1.1.2</VersionPrefix>
     <Version>$(VersionPrefix)</Version>
-    <PackageReleaseNotes>Use release build configuration for optimised performance</PackageReleaseNotes>
+    <PackageReleaseNotes>Add Array extension functions</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
@@ -34,6 +34,7 @@
     <Compile Include="Coordinates.fs" />
     <Compile Include="Result.fs" />
     <Compile Include="Seq.fs" />
+    <Compile Include="Array.fs" />
     <Compile Include="List.fs" />
     <Compile Include="Int.fs" />
     <Compile Include="Console.fs" />
