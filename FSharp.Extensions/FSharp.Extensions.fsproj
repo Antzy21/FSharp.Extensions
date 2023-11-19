@@ -14,9 +14,9 @@
     <RepositoryUrl>https://github.com/Antzy21/FSharp.Extensions</RepositoryUrl>
     <PackageTags>FSharp; Extensions; Modules; Antzy21;</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <VersionPrefix>1.1.3</VersionPrefix>
+    <VersionPrefix>1.1.4</VersionPrefix>
     <Version>$(VersionPrefix)</Version>
-    <PackageReleaseNotes>Add orElseWith for Result object</PackageReleaseNotes>
+    <PackageReleaseNotes>Add elseif and orElseWith for Result object</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
