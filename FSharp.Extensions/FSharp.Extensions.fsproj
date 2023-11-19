@@ -16,7 +16,7 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <VersionPrefix>1.1.3</VersionPrefix>
     <Version>$(VersionPrefix)</Version>
-    <PackageReleaseNotes>Add orElseWith for Result object</PackageReleaseNotes>
+    <PackageReleaseNotes>Add elseif and orElseWith for Result object</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
